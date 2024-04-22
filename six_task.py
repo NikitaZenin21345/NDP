@@ -70,8 +70,10 @@ end = 10
 sampling_rate = 1000
 x = np.arange(0, end, 1 / sampling_rate)
 y = np.sin(2 * np.pi * 10 * x) + np.random.normal(0, 0.1, len(x))
-plt.figure(figsize=(6, 6))
-plt.subplots_adjust(wspace=0.4, hspace=0.4)
+
+
+# plt.figure(figsize=(6, 6))
+# plt.subplots_adjust(wspace=0.4, hspace=0.4)
 
 
 # show_signal_and_spectrum(sampling_rate, x, y, title='average')
@@ -155,7 +157,6 @@ def find_linear_trend_parameters(signal, time):
 # __________________________________________________________
 time = np.linspace(0, 100, 100)
 
-
 # signal = 0.5 * time + np.random.normal(size=time.size) + 1
 # linear_trend = find_linear_trend_parameters(signal, time)
 # plt.plot(time, signal, label='signal')
@@ -186,24 +187,152 @@ time = np.linspace(0, 100, 100)
 # plt.show()
 # ____________________________________________________
 
-def clean_signal(signal, threshold):
-    clean_signal = np.copy(signal)
-    clean_signal[np.abs(signal) > threshold] = 0
-    return clean_signal
+
+# time = np.linspace(0, 10, 1000)
+# noise_intervals = [(200, 300), (700, 800)]
+# noise_level = 5
+# signal = 2 * np.sin(2 * np.pi * time) + 0.5 * np.random.normal(size=time.size)
+#
+# noisy_signal = np.copy(signal)
+# for start, end in noise_intervals:
+#     noisy_signal[start:end] += 2 * np.random.normal(0, noise_level, end - start)
+# signal = noisy_signal
+# windows_size = len(signal) * 0.005
+# rms_time_series = np.zeros(len(signal))
+# for index in range(0, len(rms_time_series)):
+#     low_bnd = int(np.max((0, index - windows_size)))
+#     upp_bnd = int(np.min((index + windows_size, len(signal))))
+#     tmp_signal = signal[low_bnd:upp_bnd] - np.mean(signal[low_bnd:upp_bnd])
+#     rms_time_series[index] = np.sqrt(np.sum(tmp_signal ** 2))
+#
+# treshold = 15
+# outliers = (rms_time_series > treshold)
+# plt.subplot(211)
+# plt.plot(time, treshold * np.ones(time.size), 'm--', label='Treshold ')
+# plt.plot(time[outliers], rms_time_series[outliers], 'ro', label='Outliers')
+# plt.plot(time, rms_time_series, label='RMS ')
+# plt.subplot(212)
+# plt.plot(time, signal, label='Signal ')
+# index = 0
+# for outline in outliers:
+#     if index - 1 > 0 and index + 1 < len(signal):
+#         if outline:
+#             signal[index] = None
+#     index += 1
+# plt.plot(time, signal, label='Filtered signal')
+# plt.legend()
+# plt.show()
+# ______________________________________________________
+# def spectral_interpolation(signal, missing_index, window_size):
+#
+#     start, end = missing_index
+#     n = len(signal)
+#     modified_signal = np.copy(signal)
+#     window_pre = signal[max(0, start - window_size):start]
+#     window_post = signal[end:min(n, end + window_size)]
+#
+#     spectrum_pre = np.fft.fft(window_pre, n=window_size)
+#     spectrum_post = np.fft.fft(window_post, n=window_size)
+#     average_spectrum = (spectrum_pre + spectrum_post) / 2
+#     restored_part = np.fft.ifft(average_spectrum).real
+#     modified_signal[start:end] = restored_part[:end - start]
+#
+#     if start != 0:
+#         modified_signal[start:start + 1] = (modified_signal[start - 1] + modified_signal[start]) / 2
+#     if end < n:
+#         modified_signal[end - 1:end] = (modified_signal[end - 1] + modified_signal[end]) / 2
+#
+#     return modified_signal
+#
+#
+# np.random.seed(0)
+# time = np.linspace(0, 10 * np.pi, 1000)
+# original_signal = np.sin(time) + np.random.normal(0, 0.5, time.size)
+# missing_start, missing_end = 200, 250
+# corrupted_signal = np.copy(original_signal)
+# corrupted_signal[missing_start:missing_end] = None
+# restored_signal = spectral_interpolation(corrupted_signal, (missing_start, missing_end), 50)
+#
+#
+# plt.figure(figsize=(12, 6))
+# plt.plot(original_signal,  label='Оригинальный сигнал', alpha=0.7)
+# plt.plot(corrupted_signal, 'bo', label='Сигнал с пропущенными данными', alpha=0.7)
+# plt.plot(restored_signal, '--', label='Восстановленный сигнал', alpha=0.7)
+# plt.legend()
+# plt.title('Спектральная интерполяция сигналов')
+# plt.xlabel('Время')
+# plt.ylabel('Амплитуда')
+# plt.grid(True)
+# plt.show()
+#___________________________________________________________________________
+# def resample_signal(signal, target_length):
+#
+# duration = 1
+# fs1, fs2, fs3 = 10, 35, 80
+# target_fs = 80
+#
+# t1 = np.linspace(0, duration, fs1 * duration, endpoint=False)
+# t2 = np.linspace(0, duration, fs2 * duration, endpoint=False)
+# t3 = np.linspace(0, duration, fs3 * duration, endpoint=False)
+#
+# signal1 = np.cos(2 * np.pi * 1 * t1)
+# signal2 = np.cos(2 * np.pi * 3 * t2)
+# signal3 = np.cos(2 * np.pi * 5 * t3)
+#
+# target_length = target_fs * duration
+# resampled_signal1 = resample_signal(signal1, target_length)
+# resampled_signal2 = resample_signal(signal2, target_length)
+# resampled_signal3 = resample_signal(signal3, target_length)
+#
+# target_t = np.linspace(0, duration, target_length, endpoint=False)
+#
+# plt.figure(figsize=(10, 8))
+# plt.subplot(3, 1, 1)
+# plt.plot(target_t, resampled_signal1, label='Resampled 10 Hz to 80 Hz')
+# plt.title('Signal 1')
+# plt.legend()
+#
+# plt.subplot(3, 1, 2)
+# plt.plot(target_t, resampled_signal2, label='Resampled 35 Hz to 80 Hz')
+# plt.title('Signal 2')
+# plt.legend()
+#
+# plt.subplot(3, 1, 3)
+# plt.plot(target_t, resampled_signal3, label='Original 80 Hz')
+# plt.title('Signal 3')
+# plt.legend()
+#
+# plt.tight_layout()
+# plt.show()
+#___________________________________________________________________
+from scipy.signal import butter, filtfilt
 
 
-def sliding_rms(signal, window_size):
-    rms = np.sqrt(np.convolve(signal ** 2, np.ones(window_size) / window_size, mode='same'))
-    return rms
+def decimate_signal(signal, fs, fs_new):
+    decimation_factor = fs // fs_new
+    f_cut = fs_new / 2
+    nyquist = f_cut / 2
+    b, a = butter(5, nyquist / (fs / 2), btype='low')
+    filtered_signal = filtfilt(b, a, signal)
+    decimated_signal = filtered_signal[::decimation_factor]
+    return decimated_signal
 
 
-time = np.linspace(0, 10, 1000)
-noise_intervals = [(200, 300), (700, 800)]
-noise_level = 5
-signal = 2 * np.sin(2 * np.pi * time) + 0.5 * np.random.normal(size=time.size)
+fs = 1000
+fs_new = 500
+t = np.linspace(0, 1, fs, endpoint=False)
+signal = np.sin(2 * np.pi * 50 * t)
 
-noisy_signal = np.copy(signal)
-for start, end in noise_intervals:
-    noisy_signal[start:end] += np.random.normal(0, noise_level, end - start)
-plt.plot(noisy_signal)
+downsampled_signal = decimate_signal(signal, fs, fs_new)
+t_downsampled = np.linspace(0, 1, len(downsampled_signal), endpoint=False)
+
+plt.figure(figsize=(12, 6))
+plt.subplot(2, 1, 1)
+plt.plot(t, signal, label='Original Signal')
+plt.title('Original Signal')
+plt.subplot(2, 1, 2)
+plt.plot(t_downsampled, downsampled_signal, label='Downsampled Signal', color='red')
+plt.title('Downsampled Signal')
+plt.tight_layout()
 plt.show()
+
