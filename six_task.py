@@ -306,7 +306,7 @@ time = np.linspace(0, 100, 100)
 # plt.show()
 #___________________________________________________________________
 from scipy.signal import butter, filtfilt
-
+from scipy.interpolate import griddata
 
 def decimate_signal(signal, fs, fs_new):
     decimation_factor = fs // fs_new
@@ -318,21 +318,50 @@ def decimate_signal(signal, fs, fs_new):
     return decimated_signal
 
 
+def upsample_signal(t, signal, fs_new):
+    duration = t[-1] - t[0] + (t[1] - t[0])
+    t_new = np.linspace(0, duration, int(duration * fs_new), endpoint=False)
+    signal_new = griddata(t, signal, t_new, method='cubic')
+    return t_new, signal_new
+
+
+def resample(t, signal, fs, fs_new):
+    if fs >= fs_new:
+        return decimate_signal(signal, fs, fs_new)
+    else:
+        return upsample_signal(t, signal, fs_new)
+
+
 fs = 1000
 fs_new = 500
-t = np.linspace(0, 1, fs, endpoint=False)
-signal = np.sin(2 * np.pi * 50 * t)
+t1 = np.linspace(0, 1, fs, endpoint=False)
+signal1 = np.sin(2 * np.pi * 50 * t1)
 
-downsampled_signal = decimate_signal(signal, fs, fs_new)
+downsampled_signal = resample(t1, signal1, fs, fs_new)
 t_downsampled = np.linspace(0, 1, len(downsampled_signal), endpoint=False)
 
+fs = 100
+t2 = np.linspace(0, 1, fs, endpoint=False)
+signal2 = np.sin(2 * np.pi * 30 * t2)
+t_upsampled, upsampled_signal = resample(t2, signal2, fs, fs_new)
+
 plt.figure(figsize=(12, 6))
-plt.subplot(2, 1, 1)
-plt.plot(t, signal, label='Original Signal')
+plt.subplot(3, 1, 1)
+plt.plot(t1, signal1, label='Original Signal')
 plt.title('Original Signal')
-plt.subplot(2, 1, 2)
+plt.subplot(3, 1, 2)
 plt.plot(t_downsampled, downsampled_signal, label='Downsampled Signal', color='red')
 plt.title('Downsampled Signal')
+plt.subplot(3, 1, 3)
+plt.plot(t_upsampled, upsampled_signal, label='Upsampled Signal', color='red')
+plt.title('Upsampled Signal')
 plt.tight_layout()
 plt.show()
+
+
+
+
+
+
+
 
