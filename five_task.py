@@ -84,9 +84,9 @@ N = len(t)
 
 freqmod = np.exp(-t ** 2)*10+10
 freqmod = freqmod + np.linspace(0, 10, N)
-signal = np.sin(2 * np.pi * (t + np.cumsum(freqmod)/sampling_rate))
-#plt.plot(t, signal)
-#plt.show()
+signal = np.sin(2 * 50 * np.pi * (t))
+plt.plot(t, signal)
+plt.show()
 
 morle_wavelet = np.exp(2j* np.pi * t) * np.exp(-(t**2)/0.1)
 filtered_signal = np.convolve(signal, morle_wavelet, mode='same')
