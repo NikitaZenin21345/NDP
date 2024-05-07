@@ -207,6 +207,7 @@ for index in range(0, len(rms_time_series)):
 
 treshold = 15
 outliers = (rms_time_series > treshold)
+
 plt.subplot(211)
 plt.plot(time, treshold * np.ones(time.size), 'm--', label='Treshold ')
 plt.plot(time[outliers], rms_time_series[outliers], 'ro', label='Outliers')
